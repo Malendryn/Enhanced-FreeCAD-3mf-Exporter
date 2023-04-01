@@ -1,5 +1,7 @@
 import os
 
+# RSTODO follow this link https://github.com/microsoft/ptvsd#readme to learn more about replacing ptvsd with debugpy
+
 # create a file '3mfExporter_debug_enabled' in the same directory as this script, to enable remote debugging
 denabled = os.path.join(os.path.dirname(__file__), "3mfExporter_debug_enabled");
 debug = os.path.exists(denabled);    # set to true to enable remote debugging (presently using ptvsd, plan to switch to debugpy soon)
@@ -16,7 +18,7 @@ def _break():
     if debug:
       ptvsd.break_into_debugger();
 
-enableRemoteDebugger();       # enable debugger, start talking on port 5678
+enableRemoteDebugger();       # look for a debugger that's listening on the default port (5678) and if found, attach to it
 
 ##################### debugger setup and funcs above this line #######################################################
 

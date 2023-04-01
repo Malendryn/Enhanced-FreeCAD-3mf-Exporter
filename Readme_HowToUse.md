@@ -57,9 +57,5 @@ Known Issues:
 
 First, this was a super-simple slap-together hack, I'm SURE there are better ways to do it than what I've done in this code, but I just wanted to get SOMEthing working, and FAST!  So, don't rip into me about 'how wrong I did this' or 'how stupid I did that when there's already another way'.  I'll improve it as I go along and get feedback and input from others, but right now I just wanted something that works for what I intend to use it for, without taking 3 days to learn ALL the ins and outs of the FreeCAD API first!
 
-Issue: it doesnt remember your last save-as location or filename.
 
-Issue: it loads objects at the origin in cura instead of near the center of the bed
-
-Issue: I'm sure there are more issues! :)
-
+I've now moved all the issues up to github's issue tracker, so will start to work on them from there.

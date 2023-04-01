@@ -3,3 +3,4 @@ A 3MF exporter that allows you to set properties that are available to other sof
 
 See the file 'Readme_HowToUse.md' for further instructions.
 See the file 'README_HowToFindTheVariables.md' to find the names of the properties that Cura will recognize. 
+Link to Youtube video explaining its use in more detail. -->  https://youtu.be/YgbacugzE6c
