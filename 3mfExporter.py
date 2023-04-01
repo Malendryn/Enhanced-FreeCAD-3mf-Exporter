@@ -1,3 +1,24 @@
+import os
+
+# create a file '3mfExporter_debug_enabled' in the same directory as this script, to enable remote debugging
+denabled = os.path.join(os.path.dirname(__file__), "3mfExporter_debug_enabled");
+debug = os.path.exists(denabled);    # set to true to enable remote debugging (presently using ptvsd, plan to switch to debugpy soon)
+
+if debug:
+   import ptvsd
+
+def enableRemoteDebugger():
+    if debug:
+      ptvsd.enable_attach();
+      # ptvsd.break_into_debugger();
+
+def _break():
+    if debug:
+      ptvsd.break_into_debugger();
+
+enableRemoteDebugger();       # enable debugger, start talking on port 5678
+
+##################### debugger setup and funcs above this line #######################################################
 
 import PySide
 from PySide import QtGui ,QtCore
@@ -5,19 +26,10 @@ from PySide.QtGui import *
 from PySide.QtCore import *
 
 
-def remote():
-    import ptvsd
-    ptvsd.enable_attach();
-    # ptvsd.break_into_debugger();
-
-def _break():
-    import ptvsd
-    ptvsd.break_into_debugger();
-
-remote();       # enable debugger, start listening on port 5678
-##################### debugger setup and funcs above this line #######################################################
+_break();
 
 # import FreeCAD
+
 import zipfile    #from zipfile import ZipFile
 from io import BytesIO
 
