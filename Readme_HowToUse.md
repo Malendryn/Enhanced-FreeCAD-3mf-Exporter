@@ -25,6 +25,8 @@ How to use:
 This example shows how to set the infill density on an object, which will be recognized when loaded into
 Ultimaker Cura
 
+First, place the .py file in your FreeCAD Macros directory so that FreeCAD Can use it. Then:
+
 1) In Freecad:
   1) Select an object to be exported for printing.
   2) In the 'Combo View' pane, make sure the 'Data' tab is selected
@@ -45,9 +47,9 @@ Ultimaker Cura
   
   7) repeat this process for all objects you want to assign an infill to.
 
-  8) Select all the objects you want to export, and run this 3mfExporter macro!
+  8) Select all the objects you want to export, and run this macro!
 
-At the present time, this exports to a file named 'export.3mf'
+
 2) In Ultimaker Cura
   simply load the exported file! If you click on an object and then click the 'Per Model Settings' on the lefthand side, you'll see that the Infill Density for this object has been set by the value you entered for it in FreeCad!
 
