@@ -22,6 +22,12 @@ builtin exporter), they remain seperate objects when imported, with seperate ind
 ###############################################################################################
 How to use:
 
+Note:  The first time you run the macro, it will create a file named '3mfExporter.cfg' in the same directory as the script.
+Part of this file contains a default PrintBed Width and Height of 200 x 200.  These are generic values used to relocate the
+exported objects so they are placed roughly in the center of the printbed, instead of all the way at the front left 
+corner of the bed.  You should modify these values if your printbed is significantly different in size to these values.
+
+
 This example shows how to set the infill density on an object, which will be recognized when loaded into
 Ultimaker Cura
 

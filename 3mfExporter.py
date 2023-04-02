@@ -1,9 +1,12 @@
 import os
 
 # RSTODO follow this link https://github.com/microsoft/ptvsd#readme to learn more about replacing ptvsd with debugpy
+# (*** I tried my damnedest to get debugpy to work but it absolutely refuses, so falling back to ptvsd (at least for now) ***)
 
 # create a file '3mfExporter_debug_enabled' in the same directory as this script, to enable remote debugging
-denabled = os.path.join(os.path.dirname(__file__), "3mfExporter_debug_enabled");
+scriptdir = os.path.dirname(__file__)
+
+denabled = os.path.join(scriptdir, "3mfExporter_debug_enabled");
 debug = os.path.exists(denabled);    # set to true to enable remote debugging (presently using ptvsd, plan to switch to debugpy soon)
 
 if debug:
@@ -21,6 +24,22 @@ def _break():
 enableRemoteDebugger();       # look for a debugger that's listening on the default port (5678) and if found, attach to it
 
 ##################### debugger setup and funcs above this line #######################################################
+
+_break();
+configfile = os.path.join(scriptdir, "3mfExporter.cfg");
+
+import configparser
+config = configparser.ConfigParser();
+if config.read(configfile) == []:     # no configuration?  create the basics:
+  config["PrintBed"] = {};
+  config["PrintBed"]["Width"] = "200";
+  config["PrintBed"]["Depth"] = "200";
+  config["LastSession"] = {};
+  config["LastSession"]["SaveFile"] = "";
+  fp = open(configfile, "w")
+  config.write(fp);
+  fp.close();
+
 
 import PySide
 from PySide import QtGui ,QtCore
@@ -43,15 +62,16 @@ if len(sels) == 0:  # RSTODO if sels == 0 open dialog with error and exit
   diag.setWindowModality(QtCore.Qt.ApplicationModal);
   diag.exec_();
 else:
-  def getSaveName():
+  def getSaveFile():
     _break();
-    path = FreeCAD.ConfigGet("UserAppData")
+    # path = FreeCAD.ConfigGet("UserAppData")
+    path = config["LastSession"]["SaveFile"];
 
     try:
-        saveName = QFileDialog.getSaveFileName(None,QString.fromLocal8Bit("Save a file txt"),path,             "*.3mf") # PyQt4
+        saveFile = QFileDialog.getSaveFileName(None,QString.fromLocal8Bit("Save a file txt"),path,             "*.3mf") # PyQt4
     except Exception:
-        saveName, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save a file txt", path,             "*.3mf") # PySide
-    return saveName;
+        saveFile, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save a file txt", path,             "*.3mf") # PySide
+    return saveFile;
 
   def startZipFile():     # return the zipstream with the basic setup already inserted
   #    _break();
@@ -77,8 +97,13 @@ else:
       return zipstream,zipobj;
 
 
-  saveName = getSaveName();
-  if saveName != '':
+  saveFile = getSaveFile();
+  if saveFile != '':
+    config["LastSession"]["SaveFile"] = saveFile;
+
+    fp = open(configfile, "w");
+    config.write(fp);
+    fp.close();
     zipstream,zipobj = startZipFile();
 
     bb = BytesIO()    # place to store our object data to be written into the zipfile at the end
@@ -117,8 +142,11 @@ else:
       
       shape = sel.Shape
       tess = shape.tessellate(0.01);
+
+      offx = int(config["PrintBed"]["Width"]) / 2;
+      offy = int(config["PrintBed"]["Depth"]) / 2;
       for vv in tess[0]:
-        bb.write(bytes('          <vertex x="%f" y="%f" z="%f" />\n' % (vv[0], vv[1], vv[2]), "utf-8"));
+        bb.write(bytes('          <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
       bb.write(b"""        </vertices>
             <triangles>
     """);
@@ -158,7 +186,7 @@ else:
 
 
 
-    ff = open(saveName, "wb");
+    ff = open(saveFile, "wb");
     ff.seek(0);
     ff.write(zipstream.getbuffer());
     ff.truncate();
