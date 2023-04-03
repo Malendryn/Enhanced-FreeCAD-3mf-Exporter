@@ -1,10 +1,12 @@
+## Cura List of Properties
 
-Current list of properties that Cura recognizes (As of Cura version 5.2.1).  Setting these properties on objects in FreeCAD will override the global slicing settings in Cura.
+Current list of properties that Cura recognizes (as of Cura version 5.2.1).  
+Setting these properties on objects in FreeCAD will override the global slicing settings in Cura.
 
-When creating a property on an object, the following applies in the 'Add property' window
-The 'Type' field must be set to 'App:PropertyString'
-The 'Group' field must be set to 'Metadata_Cura'
-Uncheck the 'Prefix group name' box.
+When creating a property on an object, the following applies in the '**Add property**' dialog box.  
+The **`Type`** field must be set to `App:PropertyString`  
+The **`Group`** field must be set to `Metadata_Cura`  
+**Important**: uncheck the `Prefix group name` check box.
 
 The 'Name' field can be any of the following:
 __________________________________________________________
