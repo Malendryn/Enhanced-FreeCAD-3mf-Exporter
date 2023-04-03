@@ -12,7 +12,7 @@ debug = os.path.exists(denabled);    # set to true to enable remote debugging (p
 if debug:
    import ptvsd
 
-def enableRemoteDebugger():
+def enableDebugging():
     if debug:
       ptvsd.enable_attach();
       # ptvsd.break_into_debugger();
@@ -21,7 +21,7 @@ def _break():
     if debug:
       ptvsd.break_into_debugger();
 
-enableRemoteDebugger();       # look for a debugger that's listening on the default port (5678) and if found, attach to it
+enableDebugging();       # open a listener and allow a debugger to attach to it.
 
 ##################### debugger setup and funcs above this line #######################################################
 
@@ -102,19 +102,26 @@ def export():
     fp.close();
     zipstream,zipobj = startZipFile();
 
-    bb = BytesIO()    # place to store our object data to be written into the zipfile at the end
+    ioObj = BytesIO()    # place to store our object data to be written into the zipfile at the end
+    ioBld = BytesIO()    # place to store the build info portion of the zipfile
 
-    bb.write(b"""<?xml version="1.0" encoding="UTF-8"?>
+    ioObj.write(b"""<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" mlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
     <metadata name="Application">FreeCAD</metadata>
     <resources>
 """);
 
-    oid = 1;
+    ioBld.write(b"    <build>\n");
 
+    oid = 0;
     for sel in sels:
-      bb.write(bytes('        <object id="%d" name="%s" type="model">\n' % (oid, sel.Label), "utf-8"));
+      if hasattr(sel, "Shape") == False:    # no shape?  no export!
+         continue;
+      
       oid = oid + 1
+      ioObj.write(bytes('        <object id="%d" name="%s" type="model">\n' % (oid, sel.Label), "utf-8"));
+      ioBld.write(bytes('        <item objectid="%d" />\n' % (oid), "utf-8"));
+
       metaheader = False;
 
       props = sel.PropertiesList;
@@ -127,56 +134,48 @@ def export():
 
           if metaheader == False:
             metaheader = True;
-            bb.write(b"            <metadatagroup>\n");
-          bb.write(bytes('                <metadata name="cura:%s">%s</metadata>\n' % (propName, v2), "utf-8"));
+            ioObj.write(b"            <metadatagroup>\n");
+          ioObj.write(bytes('                <metadata name="cura:%s">%s</metadata>\n' % (propName, v2), "utf-8"));
 
       if metaheader == True:
-        bb.write(b"            </metadatagroup>\n");
-      bb.write(b"""            <mesh>
+        ioObj.write(b"            </metadatagroup>\n");
+      ioObj.write(b"""            <mesh>
                 <vertices>
 """);    
 
-      shape = sel.Shape
+      shape = sel.Shape;
+      
       tess = shape.tessellate(0.01);
 
       offx = int(config["PrintBed"]["Width"]) / 2;
       offy = int(config["PrintBed"]["Depth"]) / 2;
       for vv in tess[0]:
-        bb.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
-      bb.write(b"""                </vertices>
+        ioObj.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
+      ioObj.write(b"""                </vertices>
                 <triangles>
 """);
       for tt in tess[1]:
-        bb.write(bytes('                    <triangle v1="%d" v2="%d" v3="%d" />\n' % (tt[0], tt[1], tt[2]), "utf-8"));      
+        ioObj.write(bytes('                    <triangle v1="%d" v2="%d" v3="%d" />\n' % (tt[0], tt[1], tt[2]), "utf-8"));      
 
       # finished writing the vertices and triangles of all the objects
-      bb.write(b"""                </triangles>
+      ioObj.write(b"""                </triangles>
             </mesh>
         </object>
 """);
 
     #end of selections, write closure lines and then put this all into the zipfile
-    bb.write(b"""    </resources>
-    <build>
-""");
-
-    oid = 1
-    for sel in sels:
-      bb.write(bytes('        <item objectid="%d" />\n' % (oid), "utf-8"));
-      oid = oid + 1;
-
-    bb.write(b"""    </build>
+    ioObj.write(b"    </resources>\n");
+    ioBld.write(b"""    </build>
 </model>
 """);
 
-    _break();
     ff = zipfile.ZipInfo("3D/3dmodel.model");
     ff.compress_type = zipfile.ZIP_DEFLATED;
 
 
-    bb.seek(0);
-    zipobj.writestr(ff, bb.read());
-
+    ioObj.seek(0);
+    ioBld.seek(0);
+    zipobj.writestr(ff, ioObj.read() + ioBld.read());
     zipobj.close();
 
     try:
