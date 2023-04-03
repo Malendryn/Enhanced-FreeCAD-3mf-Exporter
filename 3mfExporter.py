@@ -108,21 +108,20 @@ else:
 
     bb = BytesIO()    # place to store our object data to be written into the zipfile at the end
 
-    bb.write(b"""
-    <?xml version="1.0" encoding="UTF-8"?>
-    <model unit="millimeter" xml:lang="en-US" mlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-    <metadata name="Application">FreeCAD</metadata>
-      <resources>
-    """);
+    bb.write(b"""<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" mlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+<metadata name="Application">FreeCAD</metadata>
+    <resources>
+""");
 
     oid = 1;
 
     # _break();
 
     for sel in sels:
-      bb.write(bytes('    <object id="%d" name="%s" type="model">\n' % (oid, sel.Label), "utf-8"));
+      bb.write(bytes('        <object id="%d" name="%s" type="model">\n' % (oid, sel.Label), "utf-8"));
       oid = oid + 1
-      bb.write(b"      <metadatagroup>\n");
+      bb.write(b"            <metadatagroup>\n");
 
       props = sel.PropertiesList;
       for propName in props:
@@ -132,13 +131,13 @@ else:
           if v1 != "Metadata_Cura":
               continue;
           _break();
-          bb.write(bytes('        <metadata name="cura:%s">%s</metadata>\n' % (propName, v2), "utf-8"));
+          bb.write(bytes('                <metadata name="cura:%s">%s</metadata>\n' % (propName, v2), "utf-8"));
 
       _break();
-      bb.write(b"""      </metadatagroup>
-          <mesh>
-            <vertices>
-    """);    
+      bb.write(b"""            </metadatagroup>
+            <mesh>
+                <vertices>
+""");    
       
       shape = sel.Shape
       tess = shape.tessellate(0.01);
@@ -146,34 +145,34 @@ else:
       offx = int(config["PrintBed"]["Width"]) / 2;
       offy = int(config["PrintBed"]["Depth"]) / 2;
       for vv in tess[0]:
-        bb.write(bytes('          <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
-      bb.write(b"""        </vertices>
-            <triangles>
-    """);
+        bb.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
+      bb.write(b"""                </vertices>
+                <triangles>
+""");
       for tt in tess[1]:
-        bb.write(bytes('          <triangle v1="%d" v2="%d" v3="%d" />\n' % (tt[0], tt[1], tt[2]), "utf-8"));      
+        bb.write(bytes('                    <triangle v1="%d" v2="%d" v3="%d" />\n' % (tt[0], tt[1], tt[2]), "utf-8"));      
 
       _break();
 
     # finished writing the vertices and triangles of all the objects
-      bb.write(b"""</triangles>
-          </mesh>
+      bb.write(b"""                </triangles>
+            </mesh>
         </object>
-    """);
+""");
 
     #end of selections, write closure lines and then put this all into the zipfile
-    bb.write(b"""  </resources>
-      <build>
-    """);
+    bb.write(b"""    </resources>
+    <build>
+""");
 
     oid = 1
     for sel in sels:
-      bb.write(bytes('  <item objectid="%d" />\n' % (oid), "utf-8"));
+      bb.write(bytes('        <item objectid="%d" />\n' % (oid), "utf-8"));
       oid = oid + 1;
 
-    bb.write(b"""  </build>
-    </model>
-    """);
+    bb.write(b"""    </build>
+</model>
+""");
 
 
     ff = zipfile.ZipInfo("3D/3dmodel.model");
