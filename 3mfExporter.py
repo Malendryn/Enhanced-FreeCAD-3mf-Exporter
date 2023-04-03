@@ -25,80 +25,76 @@ enableRemoteDebugger();       # look for a debugger that's listening on the defa
 
 ##################### debugger setup and funcs above this line #######################################################
 
-_break();
-configfile = os.path.join(scriptdir, "3mfExporter.cfg");
-
-import configparser
-config = configparser.ConfigParser();
-if config.read(configfile) == []:     # no configuration?  create the basics:
-  config["PrintBed"] = {};
-  config["PrintBed"]["Width"] = "200";
-  config["PrintBed"]["Depth"] = "200";
-  config["LastSession"] = {};
-  config["LastSession"]["SaveFile"] = "";
-  fp = open(configfile, "w")
-  config.write(fp);
-  fp.close();
-
-
 import PySide
 from PySide import QtGui ,QtCore
 from PySide.QtGui import *
 from PySide.QtCore import *
 
-
-_break();
-
 # import FreeCAD
-
 import zipfile    #from zipfile import ZipFile
 from io import BytesIO
 
-sels = Gui.Selection.getSelection();     # gui is autoloaded by FreeCad
 
-if len(sels) == 0:  # RSTODO if sels == 0 open dialog with error and exit
-  _break();
-  diag = QtGui.QMessageBox(QtGui.QMessageBox.Warning, "Enhanced 3MF Exporter", "No objects selected for exporting.");
-  diag.setWindowModality(QtCore.Qt.ApplicationModal);
-  diag.exec_();
-else:
-  def getSaveFile():
-    _break();
-    # path = FreeCAD.ConfigGet("UserAppData")
+def getSaveFile():
     path = config["LastSession"]["SaveFile"];
 
     try:
-        saveFile = QFileDialog.getSaveFileName(None,QString.fromLocal8Bit("Save a file txt"),path,             "*.3mf") # PyQt4
+        saveFile = QFileDialog.getSaveFileName(None, QString.fromLocal8Bit("Save a file txt"),path, "*.3mf") # PyQt4
     except Exception:
-        saveFile, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save a file txt", path,             "*.3mf") # PySide
+        saveFile, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save a file txt", path, "*.3mf") # PySide
     return saveFile;
 
-  def startZipFile():     # return the zipstream with the basic setup already inserted
-  #    _break();
+def startZipFile():     # return the zipstream with the basic setup already inserted
       zipstream = BytesIO();
       zipobj = zipfile.ZipFile(zipstream, 'w');
       ff = zipfile.ZipInfo("[Content_Types].xml");
       ff.compress_type = zipfile.ZIP_DEFLATED;
       zipobj.writestr(ff, b"""<?xml version='1.0' encoding='UTF-8'?>
-  <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-      <Default ContentType="application/vnd.openxmlformats-package.relationships+xml" Extension="rels" />
-      <Default ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" Extension="model" />
-  </Types>
-  """);
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default ContentType="application/vnd.openxmlformats-package.relationships+xml" Extension="rels" />
+    <Default ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" Extension="model" />
+</Types>
+""");
 
       ff = zipfile.ZipInfo("_rels/.rels");
       ff.compress_type = zipfile.ZIP_DEFLATED;
       zipobj.writestr(ff, b"""<?xml version='1.0' encoding='UTF-8'?>
-  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-      <Relationship Id="rel0" Target="/3D/3dmodel.model" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
-  </Relationships>
-  """);
-
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rel0" Target="/3D/3dmodel.model" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>
+""");
       return zipstream,zipobj;
 
 
-  saveFile = getSaveFile();
-  if saveFile != '':
+def export():
+    global config;
+
+    configfile = os.path.join(scriptdir, "3mfExporter.cfg");
+
+    import configparser
+    config = configparser.ConfigParser();
+    if config.read(configfile) == []:     # no configuration?  create the basics:
+      config["PrintBed"] = {};
+      config["PrintBed"]["Width"] = "200";
+      config["PrintBed"]["Depth"] = "200";
+      config["LastSession"] = {};
+      config["LastSession"]["SaveFile"] = "";
+      fp = open(configfile, "w")
+      config.write(fp);
+      fp.close();
+
+    sels = Gui.Selection.getSelection();     # gui is autoloaded by FreeCad
+
+    if len(sels) == 0:  # RSTODO if sels == 0 open dialog with error and exit
+      diag = QtGui.QMessageBox(QtGui.QMessageBox.Warning, "Enhanced 3MF Exporter v" + version, "No objects selected for exporting.");
+      diag.setWindowModality(QtCore.Qt.ApplicationModal);
+      diag.exec_();
+      return;
+
+    saveFile = getSaveFile();
+    if saveFile == '':
+      return;
+      
     config["LastSession"]["SaveFile"] = saveFile;
 
     fp = open(configfile, "w");
@@ -110,18 +106,16 @@ else:
 
     bb.write(b"""<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" mlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-<metadata name="Application">FreeCAD</metadata>
+    <metadata name="Application">FreeCAD</metadata>
     <resources>
 """);
 
     oid = 1;
 
-    # _break();
-
     for sel in sels:
       bb.write(bytes('        <object id="%d" name="%s" type="model">\n' % (oid, sel.Label), "utf-8"));
       oid = oid + 1
-      bb.write(b"            <metadatagroup>\n");
+      metaheader = False;
 
       props = sel.PropertiesList;
       for propName in props:
@@ -130,15 +124,18 @@ else:
           v3 = sel.getTypeOfProperty(propName);
           if v1 != "Metadata_Cura":
               continue;
-          _break();
+
+          if metaheader == False:
+            metaheader = True;
+            bb.write(b"            <metadatagroup>\n");
           bb.write(bytes('                <metadata name="cura:%s">%s</metadata>\n' % (propName, v2), "utf-8"));
 
-      _break();
-      bb.write(b"""            </metadatagroup>
-            <mesh>
+      if metaheader == True:
+        bb.write(b"            </metadatagroup>\n");
+      bb.write(b"""            <mesh>
                 <vertices>
 """);    
-      
+
       shape = sel.Shape
       tess = shape.tessellate(0.01);
 
@@ -152,9 +149,7 @@ else:
       for tt in tess[1]:
         bb.write(bytes('                    <triangle v1="%d" v2="%d" v3="%d" />\n' % (tt[0], tt[1], tt[2]), "utf-8"));      
 
-      _break();
-
-    # finished writing the vertices and triangles of all the objects
+      # finished writing the vertices and triangles of all the objects
       bb.write(b"""                </triangles>
             </mesh>
         </object>
@@ -174,22 +169,43 @@ else:
 </model>
 """);
 
-
+    _break();
     ff = zipfile.ZipInfo("3D/3dmodel.model");
     ff.compress_type = zipfile.ZIP_DEFLATED;
+
 
     bb.seek(0);
     zipobj.writestr(ff, bb.read());
 
     zipobj.close();
 
+    try:
+      ff = open(saveFile, "wb");
+      ff.seek(0);
+      ff.write(zipstream.getbuffer());
+      ff.truncate();
+      ff.close();
+      zipstream.close();
+    except:
+      diag = QtGui.QMessageBox(QtGui.QMessageBox.Warning, "Enhanced 3MF Exporter v" + version, "An error occurred trying to save the export file.");
+      diag.setWindowModality(QtCore.Qt.ApplicationModal);
+      diag.exec_();
+       
 
+############################### execution starts here #####################################
+def begin():
+    global version;
 
-    ff = open(saveFile, "wb");
-    ff.seek(0);
-    ff.write(zipstream.getbuffer());
-    ff.truncate();
-    ff.close();
-    zipstream.close();
+    try:
+      fp = open(os.path.join(scriptdir, "3mfExporter.ver"), "r");
+      version = fp.readline();
+      fp.close();
+    except:
+      diag = QtGui.QMessageBox(QtGui.QMessageBox.Warning, "Enhanced 3MF Exporter v" + version, "Could not open version file.");
+      diag.setWindowModality(QtCore.Qt.ApplicationModal);
+      diag.exec_();
+      return;
+    export();
 
-    # print("done");
+_break();
+begin();
