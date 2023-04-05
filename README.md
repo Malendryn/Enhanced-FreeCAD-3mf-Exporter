@@ -71,7 +71,7 @@ Note that once this export has been imported to Cura, selecting the grouped part
 
 <i>You can also Right-Click the entire group and select <b>Ungroup Models</b> (or press <b>Ctrl+Shift+G</b>) but this is unwise as it removes the integrity of the model group, especially if you have 'Drop Down Model' enabled.</i>
 
-There is now an included .FCStd file under the 'testfiles' folder named [Gooseneck_Section_example.FCStd](testfiles/Gooseneck_Section_example.FCStd) that demonstrates this new functionality.
+There is now an included .FCStd file under the 'testfiles' folder named [Gooseneck_Section_Example.FCStd](testfiles/Gooseneck_Section_Example.FCStd) that demonstrates this new functionality.
 </details>
 
 ## Known Issues
