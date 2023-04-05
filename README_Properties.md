@@ -7,6 +7,11 @@ The 'Group' field must be set to 'Metadata_Cura'
 Uncheck the 'Prefix group name' box.
 
 The 'Name' field can be any of the following:
+
+NOTE: Most if not all of the following information can be gleaned from the 'fdmprinter.def.json' file in the Cura source 
+      code on github.  Here is a direct link to that file:
+          https://github.com/Ultimaker/Cura/blob/main/resources/definitions/fdmprinter.def.json
+
 __________________________________________________________
 Settings under the Cura category of 'Quality' are:
 -----------------------------------------
@@ -86,7 +91,8 @@ infill_line_distance    | Infill Line Distance
     Distance between the printed infill lines. This setting is calculated by the infill density and the infill line width.
 
 infill_pattern          | Infill Pattern
-    The pattern of the infill material of the print.
+    The pattern of the infill material of the print. The current known values for this field are:
+        grid, triangles, trihexagon, cubic, cubicsubdiv, tetrahedral, quarter_cubic, cross, cross_3d, lightning
 
 infill_multiplier       | Infill Line Multiplier
     Convert each infill line to this many lines.  The extra lines do not cross over each other, but avoid each other.   This makes the infill stiffer, but increases print time and material usage.

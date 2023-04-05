@@ -1,0 +1,8 @@
+# ############################# FreeCad specific ignores ######################################
+# save all .FCStd files but not .FCStd1 .FCStd2 etc...
+*.FCStd?*
+
+# also skip all backup(?) files
+*.FCBak
+
+.vscode

@@ -48,16 +48,35 @@ The following description complements the video above and gives a textual descri
 
 7. repeat this process for all models you want to assign an infill to.
 
-8. Finally, select all the models you want to export, and run this macro!
+8. Finally, select all the models you want to export, and run this macro.
 
 ### Step 2: In Ultimaker Cura
-  simply load the exported file! If you click on a model and then click the `Per Model Settings` in the toolbar on the lefthand side, you'll see that the Infill Density for this model has been set by the value you entered for it in FreeCad!
+  Simply load the exported file! If you click on a model and then click the `Per Model Settings` in the toolbar on the lefthand side, you'll see that the Infill Density for this model has been set by the value you entered for it in FreeCad.
+</details>
+<details>
+<summary><b><h3>Major improvements since initial release!</h3></b></summary>
 
+The first release (now renamed to [3mfExporter_old(v0.1.1).py](Prior_working_version/3mfExporter_old(v0.1.1).py) was only able to accurately import toplevel objects. Any objects that resided inside a group were effectively removed from the group and placed at the toplevel as well, and their relative positioning was lost in the process.
+
+This new release now supports the Part object as well, and retains the relative positioning of the children as well as any Parts-Inside-Of-Parts.  <i>However, it only handles Part Position, and does not YET handle Part Rotation (Angle and Axis), so be mindful of this when exporting parts.</i>
+
+The cumulative nature of Parts with children also applies to the properties as follows:
+* Properties on children of Parts get stored just like toplevel objects.
+* Properties on the Part object itself (and all parent Part objects as well), get added to this object as if they were a property on that object.
+* Properties that already exist on a child, will <i>NOT</i> get overwritten by a parent Part's property.
+
+This allows you to have a number of objects that have specific settings, and have them all placed under a Part object which has even more properties that will apply to all its children.
+
+Note that once this export has been imported to Cura, selecting the grouped part won't show the properties. To see the properties, you can <b>Ctrl+Left-Click</b> single object inside the group, and then you can see its Per Model Settings. (You can also move the single object around in this manner while still keeping the objects together in a group.)
+
+<i>You can also Right-Click the entire group and select <b>Ungroup Models</b> (or press <b>Ctrl+Shift+G</b>) but this is unwise as it removes the integrity of the model group, especially if you have 'Drop Down Model' enabled.</i>
+
+There is now an included .FCStd file under the 'testfiles' folder named [Gooseneck_Section_example.FCStd](testfiles/Gooseneck_Section_example.FCStd) that demonstrates this new functionality.
 </details>
 
 ## Known Issues
 
-First, this was a super-simple slap-together hack, I'm SURE there are better ways to do it than what I've done in this code, but I just wanted to get SOMEthing working, and FAST!  So, don't rip into me about 'how wrong I did this' or 'how stupid I did that when there's already another way'.  I'll improve it as I go along and get feedback and input from others, but right now I just wanted something that works for what I intend to use it for, without taking 3 days to learn ALL the ins and outs of the FreeCAD API first!
+Grouped objects (aka Part objects) still do not support the Angle property under Placement, only Position is presently supported.
 
 ## Feedback and Bug reports
 
@@ -65,7 +84,7 @@ I've now moved all the issues up to github's issue tracker, so will start to wor
 
 ## Developer
 
-Ron Stanions ([@Malendryn](https://github.com/Malendryn))  
+Ron Stanions ([@Malendryn](https://github.com/Malendryn))  -- DragonsFire Development  
 Initial Creation Date: 03/31/2023
 
 ## License
