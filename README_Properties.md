@@ -27,7 +27,7 @@ The **`Name`** field can be any of the following:
 |------------------------------|----------------------------------------|
 | wall_thickness               | `"Wall Thickness"`<br>The thickness of the walls in the horizontal direction. This value divided by the wall line width defines the number of walls. |
 | wall_line_count              | `"Wall Line Count"`<br>The number of walls. When calculated by the wall thickness, this value is rounded to a whole number. |
-| optimize_wall_printing_order | `"Optimize Wall Printing"` Order<br>Optimize the order in which walls aer printed so as to reduce the number of retractions and the distance travelled. Most parts will benefit from this being abled but some may actually take longer so please compaer the print time estimates with and without optimization.  First layer is not optimized when choosing brim as build plate adhesion type. |
+| optimize_wall_printing_order | `"Optimize Wall Printing Order"`<br>Optimize the order in which walls aer printed so as to reduce the number of retractions and the distance travelled. Most parts will benefit from this being abled but some may actually take longer so please compaer the print time estimates with and without optimization.  First layer is not optimized when choosing brim as build plate adhesion type. |
 | xy_offset                    | `"Horizontal Expansion"`<br>Amount of offset applied to all polygons in each layer. Positive values can compensate for too big holes; negative values can compensate for too small holes. \
 
 <br><b>Settings under the Cura category of **`"Top/Bottom"`** are:</b>
@@ -38,7 +38,7 @@ The **`Name`** field can be any of the following:
 | top_layers             | `"Top Layers`"<br>The number of top layers, When calculated by the top thickness, this value is rounded to a whole number. |
 | bottom_thickness       | Bottom Thickness<br>The thickness of the bottom layers in the print.  This value divided by the layer height defines the number of bottom layers. |
 | bottom_layers          | `"Bottom Layers"`<br>The number of bottom layers. When calculated by the bottom thickness, this value is rounded to a whole number. |
-| skin_monotonic         | `"Monotonic"` Top/Bottom Order<br>Print top/bottom lines in an ordering that causes them to always overlap with adjacent lines in a single direction. This takes slightly more time to print, but makes flat surfaces look more consistent. |
+| skin_monotonic         | `"Monotonic Top/Bottom Order"`<br>Print top/bottom lines in an ordering that causes them to always overlap with adjacent lines in a single direction. This takes slightly more time to print, but makes flat surfaces look more consistent. |
 | ironing_enabled        | `"Enable Ironing"`<br>Go over the top surface one additional time, but this time extruding very little material. This is meant to melt the plastic on top further, creating a smoother surface. The pressure in the nozzle chamber is kept high so that the creases in the surface are filled with material. |
 
 <br><b>Settings under the Cura category of **`"Infill"`** are:</b>
@@ -48,7 +48,7 @@ The **`Name`** field can be any of the following:
 | infill_line_distance    | **`"Infill Line Distance"`**<br>Distance between the printed infill lines. This setting is calculated by the infill density and the infill line width. |
 | infill_pattern          | **`"Infill Pattern"`**<br>The pattern of the infill material of the print. The current known values for this field are:<br><b>grid, triangles, trihexagon, cubic, cubicsubdiv, tetrahedral, quarter_cubic, cross, cross_3d, lightning</b> |
 | infill_multiplier       | **`"Infill Line Multiplier"`**<br>Convert each infill line to this many lines.  The extra lines do not cross over each other, but avoid each other.   This makes the infill stiffer, but increases print time and material usage. |
-| infill_overlap          | **`"Infill Overlap Percentage"*``<br>The amount of overlap between the infill and the walls as a percentage of the infill line width.  A slight overlap allows the walls to connect firmly to the infill. |
+| infill_overlap          | **`"Infill Overlap Percentage"`**<br>The amount of overlap between the infill and the walls as a percentage of the infill line width.  A slight overlap allows the walls to connect firmly to the infill. |
 | infill_sparse_thickness | **`"Infill Layer Thickness"`**<br>The thickness per layer of infill material.  This value should always be a multiple of the layer height and is otherwise rounded. |
 | gradual_infill_steps    | **`"Gradual Infill Steps"`**<br>Number of times to reduce the infill density by half when getting further below top surfaces. Areas which are closer to top surfaces get a higher density, up to the Infill Density. |
 
