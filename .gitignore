@@ -1,10 +1,8 @@
 # ############################# FreeCad specific ignores ######################################
 # save all .FCStd files but not .FCStd1 .FCStd2 etc...
 *.FCStd?*
-
 # also skip all backup files
 # I've seen these from FreeCAD as well
 *.FCBak
-
 # these are from the markdown editor 'Ghostwriter' 
 *.backup
