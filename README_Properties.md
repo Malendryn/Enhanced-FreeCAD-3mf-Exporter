@@ -2,13 +2,14 @@
 Current list of properties that Cura recognizes (As of Cura version 5.2.1).  Setting these properties on objects in FreeCAD will override the global slicing settings in Cura.
 
 When creating a property on an object, the following applies in the **Add property** window
-The **`Type`** field must be set to `App:PropertyString`
-The **`Group`** field must be set to `Metadata_Cura`
-Uncheck the **`Prefix group name`** box.
+* The **`Type`** field must be set to `App:PropertyString
+* The **`Group`** field must be set to `Metadata_Cura*`
+* Uncheck the **`Prefix group name`** box.
+ 
 
-The 'Name' field can be any of the following:
+The **`Name`** field can be any of the following:
 
-NOTE: Most if not all of the following information can be gleaned from the [fdmprinter.def.json](https://github.com/Ultimaker/Cura/blob/main/resources/definitions/fdmprinter.def.json) file over in the Cura source tree.
+(NOTE: Most if not all of the following information can be gleaned from the [fdmprinter.def.json](https://github.com/Ultimaker/Cura/blob/main/resources/definitions/fdmprinter.def.json) file over in the Cura source tree.)
 
 <b>Settings under the Cura category of **`"Quality"`** are:</b>
 
