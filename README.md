@@ -1,3 +1,5 @@
+
+
 ## Enhanced 3mf File Exporter for FreeCAD
 
 This FreeCAD macro improves upon FreeCAD's built-in 3mf file exporter in the following ways:
@@ -86,6 +88,18 @@ I've now moved all the issues up to github's issue tracker, so will start to wor
 
 Ron Stanions ([@Malendryn](https://github.com/Malendryn))  -- DragonsFire Development  
 Initial Creation Date: 03/31/2023
+
+## Contributors
+<table style="vertical-align: top;">
+  <tbody>
+    <tr>
+      <td>
+
+luzpaz&nbsp;([@luzpaz](https://github.com/luzpaz))</td>
+      <td>For teaching me the basics of markdown language and suggestions on documentation formatting</td>
+    </tr>
+  </tbody>
+<table>
 
 ## License
 

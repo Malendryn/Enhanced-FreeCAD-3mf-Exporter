@@ -225,17 +225,30 @@ def writeObject(ioObj, ioBld, data):
       shape = obj.Shape;
       tess = shape.tessellate(0.01);
 
+      _break();
+
       offx = int(config["PrintBed"]["Width"]) / 2;
       offy = int(config["PrintBed"]["Depth"]) / 2;
-      for parent in parents:      # walk the parents and add their offsets
-        _break();
-        tmp = rsrcDict[parent];
-        off = tmp[1].Placement.Base;
-        offx += off[0];
-        offy += off[1];
 
-      for vv in tess[0]:                              # write all the tesselated vertex info PLUS my acumulated offsets
+      matrix = FreeCAD.Matrix();          # start with an identity matrix 
+      for parent in parents:      # walk the parents and add their offsets
+        tmp = rsrcDict[parent][1];
+#RSREMOVE old code here
+#        off = tmp.Placement.Base;
+#        offx += off[0];
+#        offy += off[1];
+#
+#      for vv in tess[0]:                              # write all the tesselated vertex info PLUS my acumulated offsets
+#        ioObj.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
+#RSEND
+
+#RSADD new code here
+        matrix = matrix.multiply(tmp.Placement.Matrix);
+      
+      for vert in tess[0]:                              # write all the tesselated vertex info PLUS the parents acumulated offsets
+        vv = matrix.multiply(vert);
         ioObj.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
+#RSEND
 
       ioObj.write(b"""                </vertices>
                 <triangles>
@@ -338,5 +351,5 @@ def begin():
 
 
 ############################################################################################################
-#_break();
+_break();
 begin();
