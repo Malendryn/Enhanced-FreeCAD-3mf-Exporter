@@ -158,7 +158,11 @@ def processObjectList(objs):
         if not hasattr(obj, "Shape"):   # no shape? no export!
            continue;
 
-        if str(type(obj)) == "<class 'App.Part'>":  # this is a part, so it might have children
+# when obj is created from the Part workbench:  str(type(obj)) = "<class 'FeaturePython'>"      but str(obj) = "<Part::PartFeature>"
+# when obj is a (blue) body:                    str(type(obj)) = "<class 'PartDesign.Body'>"    but str(obj) = "<body object>"
+# when obj is a link:                           str(type(obj)) = "<class 'App.DocumentObject'>" but str(obj) = "<App::Link object>"
+# when obj is a (yellow) Part:                  str(type(obj)) = "<class 'App.Part>"            but str(obj) = "<Part object>"
+        if str(obj) == "<Part object>":  # this is a part, so it might have children
           if not addObjectToResources(obj, True):
             continue;
           grpStack.append(obj.Label);       # grow the parent stack
@@ -193,6 +197,10 @@ def writeObject(ioObj, ioBld, data):
     propNames = [];                         # prevents parent objects from overwriting children properties
     for label in [obj.Label] + parents:     # walk chain of parents starting with self
       tmp = rsrcDict[label][1];
+#      _break();
+      while (str(tmp) == "<App::Link object>"): # walk up the links to find the real object
+          tmp = tmp.LinkedObject;
+      
       for propName in tmp.PropertiesList:
         v1 = tmp.getGroupOfProperty(propName);  # we only care when this is "Metadata_Cura"
         v2 = tmp.getPropertyByName(propName);   # the value of the property
@@ -233,22 +241,12 @@ def writeObject(ioObj, ioBld, data):
       matrix = FreeCAD.Matrix();          # start with an identity matrix 
       for parent in parents:      # walk the parents and add their offsets
         tmp = rsrcDict[parent][1];
-#RSREMOVE old code here
-#        off = tmp.Placement.Base;
-#        offx += off[0];
-#        offy += off[1];
-#
-#      for vv in tess[0]:                              # write all the tesselated vertex info PLUS my acumulated offsets
-#        ioObj.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
-#RSEND
 
-#RSADD new code here
         matrix = matrix.multiply(tmp.Placement.Matrix);
       
       for vert in tess[0]:                              # write all the tesselated vertex info PLUS the parents acumulated offsets
         vv = matrix.multiply(vert);
         ioObj.write(bytes('                    <vertex x="%f" y="%f" z="%f" />\n' % (offx + vv[0], offy + vv[1], vv[2]), "utf-8"));
-#RSEND
 
       ioObj.write(b"""                </vertices>
                 <triangles>
