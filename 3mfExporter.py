@@ -154,7 +154,10 @@ def processObjectList(objs):
     
     for idx in range(0, len(objs)):
         obj = objs[idx];
-#        _break();
+        _break();
+
+        if obj.Visibility == False:     # not visible?  don't export!
+           continue;
         if not hasattr(obj, "Shape"):   # no shape? no export!
            continue;
 
